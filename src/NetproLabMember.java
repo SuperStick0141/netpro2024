@@ -34,5 +34,6 @@ public class NetproLabMember
             System.out.println((N+1)+"年目の  "+"総数は"+ThisInfo[N][0] +"人。  "+ "女子は"+ThisInfo[N][1]+"人。  "+"岩井研の受付人数は"+ThisInfo[N][2]+"人。  "+"ここまで女子が来ない確率は"+Result[N]);
         }
 
+        
     }
 }
