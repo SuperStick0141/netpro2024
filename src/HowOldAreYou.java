@@ -15,7 +15,7 @@ public class HowOldAreYou
 		try {
             while(true)
             {
-			System.out.println("\n何歳ですか?");
+			System.out.println("\n何歳ですか?   ");
             String line="";
             
 			line = reader.readLine();
