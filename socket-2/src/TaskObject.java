@@ -11,6 +11,10 @@ public class TaskObject implements Serializable
         public int getResult(); //クライアントで結果を取り出す関数
     }
 
+
+
+    
+
     public void setExecNumber(int x) {
         this.number = x;
     }

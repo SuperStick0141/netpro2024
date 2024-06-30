@@ -8,6 +8,17 @@ import java.util.Scanner;
 
 public class TaskServerOnce 
 {
+
+
+
+
+
+
+
+
+
+
+    
     public static void main(String arg[]) {
         try {
             /* 通信の準備をする */
