@@ -228,6 +228,8 @@ public class ChatServer
                 PlayerNum=0;
             }
             for(ClientHandler client : clients){client.CanMove=true;}
+            GmAllMessage("\n\n--ゲーム終了.自由に会話をどうぞ--\n");
+            return;
         }
     }
 
