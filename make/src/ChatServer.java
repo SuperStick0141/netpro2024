@@ -78,9 +78,9 @@ public class ChatServer
             "スキル③:解体 (プレイヤーのお肉獲得量+1)\n"+
             "スキル④:俊足 (逃走が確実に成功)\n"+
             "スキル⑤:再生 (休憩の回復量+1)\n"+
-            "スキル⑥:鉄壁 (休憩の回復量+1)\n"+
-            "スキル⑦:万有 (休憩の回復量+1)\n"+
-            "スキル⑧:暴食 (休憩の回復量+1)\n"+
+            "スキル⑥:鉄壁 (受けるダメージ-1)\n"+
+            "スキル⑦:万有 (受けるダメージ+2、与えるダメージ+2)\n"+
+            "スキル⑧:暴食 (休憩で使用するお肉+1、回復量+2)\n"+
             "\nこれらから選んでください。数字1~8で回答",PlNum);
             client.CanMove=true; 
             synchronized (ChatServer.class) {while(NextCount==0){try{ChatServer.class.wait();}catch(InterruptedException e){}}}
