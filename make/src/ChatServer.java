@@ -17,9 +17,9 @@ public class ChatServer
     static int[][] EnemyStates=new int[][]
     {
         new int[]{/*HP*/3,/*ATK*/1,/*DROP*/1},//ウサギA
-        new int[]{/*HP*/5,/*ATK*/1,/*DROP*/2},//B
-        new int[]{/*HP*/6,/*ATK*/1,/*DROP*/3},//C
-        new int[]{/*HP*/7,/*ATK*/2,/*DROP*/4}//D
+        new int[]{/*HP*/5,/*ATK*/1,/*DROP*/1},//B
+        new int[]{/*HP*/6,/*ATK*/2,/*DROP*/2},//C
+        new int[]{/*HP*/7,/*ATK*/2,/*DROP*/3}//D
     };
     private static List<ClientHandler> clients = new ArrayList<>();
     private static Random random = new Random();
@@ -100,7 +100,22 @@ public class ChatServer
             if(GameFinish)
             {//死人が居なければ一日を始める
             GmAllMessage("\n\n[GM] 一日が始まります。"+Turn+"日目です。");
-            if(true){/* 環境を左右する時はここ */GmAllMessage("\n\n[GM] 今日は晴天です。");}
+            if(true)
+            {
+                /* 環境を左右する時はここ */
+                GmAllMessage("\n\n[GM] 今日は晴天です。");
+                if(Turn>3)
+                {
+                    int Ran=random.nextInt(10);
+                    if(Turn>Ran)
+                    {
+                        GmAllMessage("\n\n[GM] 時間が経ちすぎなのでウサギが強くなります");
+                        int RanP=random.nextInt(10);
+                        if(RanP>2){EnemyStates[0][0]+=1;EnemyStates[1][0]+=1;EnemyStates[2][0]+=1;EnemyStates[3][0]+=1;}
+                        else{EnemyStates[0][1]+=1;EnemyStates[1][1]+=1;EnemyStates[2][1]+=1;EnemyStates[3][1]+=1;}
+                    }
+                }
+            }
             GmAllMessage("[GM] 各プレイヤーは食料を調達するか、他の作業をするか選択できます。");
             for(ClientHandler client : clients)
             {//各プレイヤーの行動
@@ -140,18 +155,18 @@ public class ChatServer
                             if(HP<=0)
                             {//撃破。戦闘終了。肉取得。
                                 GmSubMessage(EnemyName+"を撃破した！","・プレイヤー"+(PlNum+1)+"が"+EnemyName+"を撃破!",PlNum);
-                                int PlusMeat =0;
+                                int PlusMeat = 0;
                                 if(client.retSkillA()==3||client.retSkillB()==3){PlusMeat=1;}
                                 client.getMeat(EnemyStates[Enemy][2]+PlusMeat);
-                                GmOneMessage("お肉を"+EnemyStates[Enemy][2]+PlusMeat+"つ獲得",PlNum);
+                                GmOneMessage("お肉を"+(EnemyStates[Enemy][2]+PlusMeat)+"つ獲得",PlNum);
                                 break;
                             }
                             GmOneMessage("相手が攻撃を行います",PlNum);
                             int ThatDamage=EnemyStates[Enemy][1];
-                            if(client.retSkillA()==6||client.retSkillB()==6){ThatDamage-=1;}
-                            if(client.retSkillA()==7||client.retSkillB()==7){ThatDamage+=2;}
+                            if(client.retSkillA()==6||client.retSkillB()==6){ThatDamage=ThatDamage-1;}
+                            if(client.retSkillA()==7||client.retSkillB()==7){ThatDamage=ThatDamage+2;}
                             client.getDamage(ThatDamage);
-                            GmOneMessage(EnemyStates[Enemy][1]+"のダメージ!!\n現在の体力は"+client.getHP()+"です。",PlNum);
+                            GmOneMessage(ThatDamage+"のダメージを受けた!!\n現在の体力は"+client.getHP()+"です。",PlNum);
                         }
                         else if(NextCount==12)
                         {//逃亡→成功したらループ解除。得る物無。失敗時に相手の攻撃
@@ -163,8 +178,11 @@ public class ChatServer
                             {//相手の攻撃
                                 GmOneMessage("逃亡に失敗しました",PlNum);
                                 GmOneMessage("相手が攻撃を行います",PlNum);
-                                client.getDamage(EnemyStates[Enemy][1]);
-                                GmOneMessage(EnemyStates[Enemy][1]+"のダメージ!!\n現在の体力は"+client.getHP()+"です。",PlNum);
+                                int ThatDamage=EnemyStates[Enemy][1];
+                                if(client.retSkillA()==6||client.retSkillB()==6){ThatDamage=ThatDamage-1;}
+                                if(client.retSkillA()==7||client.retSkillB()==7){ThatDamage=ThatDamage+2;}
+                                client.getDamage(ThatDamage);
+                                GmOneMessage(ThatDamage+"のダメージを受けた!!\n現在の体力は"+client.getHP()+"です。",PlNum);
                             }
                         }
                     }
@@ -186,15 +204,28 @@ public class ChatServer
             GmAllMessage("\n\n[GM] 誰かが力尽きたため、ゲーム終了となります！");
             GmAllMessage("[GM] ここから、結果を発表します！");
 
-            int MaxMeat=0;
+            int MaxNum=0;
             int PlayerNum=0;
             List<Integer> Used = new ArrayList<>();
-            GmAllMessage("---お肉獲得量---");
+            GmAllMessage("---お肉所持量---");
             for(int N=0;N<clients.size();N++)
             {
-                for(ClientHandler Check : clients){if(MaxMeat>Check.HaveMeat() && !Used.contains(Check.RetPlayer())) {MaxMeat=Check.HaveMeat(); PlayerNum=Check.RetPlayer();}}
-                GmAllMessage( (N+1)+"位   Player["+PlayerNum+"]   "+MaxMeat+"個");
+                for(ClientHandler Check : clients){if(MaxNum<Check.HaveMeat() && !Used.contains(Check.RetPlayer())) {MaxNum=Check.HaveMeat(); PlayerNum=Check.RetPlayer();}}
+                GmAllMessage( (N+1)+"位   Player["+PlayerNum+"]   "+MaxNum+"個");
                 Used.add(PlayerNum);
+                MaxNum=0;
+                PlayerNum=0;
+            }
+            MaxNum=-99;
+            Used = new ArrayList<>();
+            GmAllMessage("---現在体力---");
+            for(int N=0;N<clients.size();N++)
+            {
+                for(ClientHandler Check : clients){if(MaxNum<Check.getHP() && !Used.contains(Check.RetPlayer())) {MaxNum=Check.getHP(); PlayerNum=Check.RetPlayer();}}
+                GmAllMessage( (N+1)+"位   Player["+PlayerNum+"]   "+MaxNum);
+                Used.add(PlayerNum);
+                MaxNum=-99;
+                PlayerNum=0;
             }
             for(ClientHandler client : clients){client.CanMove=true;}
         }
@@ -282,7 +313,7 @@ public class ChatServer
                                 if(Check==1 || Check==2 )
                                 {
                                     if(Check==1){Info="調達";} broadcast(Info+"を選択");  
-                                    if(!CanRest()){out.println("...しかしお肉が足りなかった!!!\n強制的に戦闘を行います。"); Check=1;}
+                                    if(Check==2&&!CanRest()){out.println("...しかしお肉が足りなかった!!!\n強制的に戦闘を行います。"); Check=1;}
                                     NextNum(Check);
                                 }  
                                 else{out.println("数値が範囲外です。");}   
@@ -293,6 +324,7 @@ public class ChatServer
                                 if(Check==1 || Check==2){NextNum(Check+10);}  
                                 else{out.println("数値が範囲外です。");}   
                             }
+                            else if(GamePhase==2){broadcast("[Player "+PlayerNum+"]   " + inputLine);}
                         }
                         catch(Exception e)
                         {//形式外のコメントは「プレイヤ―のなり切ったセリフとして全体に表示」
